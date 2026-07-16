@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAHMID CODEX — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ac: #00ff41;
+      --ac-dim: #00ff4188;
+      --total-color: #e5e7eb;
+      --view-color: #38bdf8;
+      --set-color: #c084fc;
+      --del-color: #ef4444;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#080808;color:#e5e7eb;font-family:'JetBrains Mono',monospace;min-height:100vh}
+    header{background:#0a0a0a;border-bottom:1px solid #00ff4133;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .logo{display:flex;align-items:center;gap:8px}
+    .logo-skull{font-size:20px;filter:drop-shadow(0 0 6px #00ff41)}
+    .logo-name{color:#00ff41;font-weight:700;font-size:15px;letter-spacing:1px;text-shadow:0 0 8px #00ff41}
+    .header-stats{display:flex;gap:16px;font-size:11px;color:#00ff4188}
+    .header-right{display:flex;align-items:center;gap:8px}
+    .username{color:#a3e635;font-size:12px}
+    .btn{padding:5px 12px;border-radius:6px;font-family:inherit;font-size:11px;cursor:pointer;border:1px solid;transition:all .2s;text-decoration:none;display:inline-block}
+    .btn-green{border-color:#00ff4188;color:#00ff41;background:transparent}
+    .btn-green:hover{background:#00ff4111;box-shadow:0 0 8px #00ff4133}
+    .btn-amber{border-color:#fbbf2488;color:#fbbf24;background:transparent}
+    .btn-amber:hover{background:#fbbf2411}
+    .btn-red{border-color:#ef444488;color:#ef4444;background:transparent}
+    .btn-red:hover{background:#ef444411}
+    
+    main{padding:5px 20px;max-width:700px;margin:0 auto} 
+    
+    /* --- Clock Styles --- */
+    .clock-wrapper {
+      width: 100%;
+      max-width: 700px;
+      margin: 2px auto 0; 
+      padding: 0 20px;
+    }
+    .clock-container {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      padding: 15px; 
+      text-align: center;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    }
+    .clock-time {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--ac);
+      text-shadow: 0 0 12px var(--ac-dim);
+      letter-spacing: 0.5px;
+      transition: all 0.8s ease;
+      display: block;
+    }
+    .clock-date {
+      font-size: 18px; 
+      color: #00ff41aa;
+      margin-top: 5px;
+      font-weight: 700; 
+      letter-spacing: 1.5px;
+    }
+    .clock-label {
+      font-size: 11px; 
+      color: var(--ac); 
+      letter-spacing: 2px;
+      margin-top: 8px;
+      text-transform: uppercase;
+      font-weight: 700;
+      opacity: 0.9;
+      text-shadow: 0 0 5px var(--ac-dim);
+    }
+
+    /* --- Stats Boxes --- */
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr auto 1fr; 
+      align-items: center; 
+      gap:12px;
+      margin-bottom:12px; 
+      margin-top: 5px;
+    } 
+    .stat-card{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:12px;text-align:center} 
+    
+    /* --- Mobile Style Mute Toggle Button --- */
+    .mute-toggle-btn {
+      background: #0d0d0d;
+      border: 1px solid #1a1a1a;
+      color: var(--ac);
+      font-size: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px var(--ac-dim);
+      transition: all 0.3s ease;
+    }
+    .mute-toggle-btn:hover {
+      box-shadow: 0 0 15px var(--ac);
+      transform: scale(1.05);
+    }
+    .mute-toggle-btn.is-muted {
+      color: #ef4444;
+      border-color: #ef444444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+    }
+
+    .stat-num.ac{
+      font-size:30px;
+      font-weight:700;
+      color: var(--ac);
+      text-shadow: 0 0 16px var(--ac);
+      transition: all 0.8s ease;
+    }
+    
+    .stat-num.total-sync{
+      font-size:30px;
+      font-weight:700;
+      color: var(--total-sync-color, #e5e7eb);
+      text-shadow: 0 0 16px var(--total-sync-color, #e5e7eb);
+      transition: all 0.8s ease;
+    }
+
+    .stat-label{font-size:9px;color:#4b5563;letter-spacing:2px;margin-top:2px}
+    .server-card{background:#0a0a0a;border:1px solid #1a1a1a;border-left:4px solid;border-radius:10px;padding:16px;margin-bottom:12px;transition:border-color .2s}
+    .server-card.running{border-left-color:#00ff41}
+    .server-card.stopped{border-left-color:#ef4444}
+    .server-card:hover{border-color:#00ff4133}
+    .server-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    
+    .server-name-sync {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--ac);
+      letter-spacing: .5px;
+      transition: all 0.8s ease;
+    }
+    .server-sub-sync {
+      font-size: 12px;
+      color: var(--ac);
+      opacity: 0.8;
+      margin-bottom: 14px;
+      transition: all 0.8s ease;
+    }
+
+    .status-badge{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid}
+    .status-badge.running{border-color:#00ff41;color:#00ff41;box-shadow:0 0 8px #00ff4133}
+    .status-badge.stopped{border-color:#ef4444;color:#ef4444}
+    
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .action-btn{width:40px;height:36px;background:transparent;border-radius:7px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.8s ease;font-family:inherit;border:1px solid}
+    
+    .btn-view-sync { border-color: var(--view-sync-color, #38bdf8); color: var(--view-sync-color, #38bdf8); }
+    .btn-set-sync { border-color: var(--set-sync-color, #c084fc); color: var(--set-sync-color, #c084fc); }
+    .btn-del-sync { border-color: var(--del-sync-color, #ef4444); color: var(--del-sync-color, #ef4444); }
+
+    .empty{text-align:center;padding:60px 20px;color:#374151}
+    .empty-icon{font-size:48px;margin-bottom:12px;opacity:.3}
+    .fab{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:30%;background:#00ff41;color:#000;border:none;font-size:26px;font-weight:700;cursor:pointer;box-shadow:0 0 20px #00ff4188;display:flex;align-items:center;justify-content:center;z-index:50;transition:transform .2s}
+    .fab:hover{transform:scale(1.1)}
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:100}
+    .modal-bg.show{display:flex}
+    
+    .modal{background:#0a0a0a;border:2px solid var(--ac);border-radius:12px;padding:28px;width:320px;box-shadow:0 0 32px var(--ac-dim);transition: all 0.8s ease;}
+    
+    .modal-title{font-size:14px;font-weight:700;color:var(--ac);letter-spacing:2px;margin-bottom:20px;transition: all 0.8s ease;}
+    .form-group{margin-bottom:14px}
+    .form-label{font-size:11px;color:#6b7280;display:block;margin-bottom:6px;letter-spacing:1px}
+    .form-input{width:100%;padding:9px 12px;background:#111;border:1px solid var(--ac-dim);border-radius:7px;color:var(--ac);font-family:inherit;font-size:13px;outline:none;transition: all 0.8s ease;}
+    .form-input:focus{border-color:var(--ac)}
+    select.form-input option{background:#0a0a0a}
+    .modal-actions{display:flex;gap:10px;margin-top:20px}
+    .modal-btn{flex:1;padding:10px;border-radius:7px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;border:2px solid var(--ac);background:transparent;color:var(--ac);transition: all 0.8s ease;}
+    .modal-btn.modal-cancel{border-color:#333;color:#6b7280}
+  </style>
+</head>
+<body>
+
+  <div style="display:none;">
+    <audio id="bgMusic">
+        <source src="{{ settings.get('music_url', '') }}" type="audio/mpeg">
+    </audio>
+  </div>
+
+  <header>
+    <div class="logo">
+      <span class="logo-skull">🖥️</span>
+      <span class="logo-name">TAHMID CODEX </span>
+    </div>
+    <div class="header-stats">
+      <span id="statCpu">CPU: --%</span>
+      <span id="statRam">RAM: --%</span>
+      <span id="statDisk">DISK: --%</span>
+    </div>
+    <div class="header-right">
+      <span class="username">@{{ username }}</span>
+      <a href="/like.html" class="btn btn-amber">   ⚙ LIKE</a>
+      <a href="/logout" class="btn btn-red">LOG OUT</a>
+    </div>
+  </header>
+
+  <div class="clock-wrapper">
+    <div class="clock-container">
+      <div class="clock-time" id="liveClock">00:00:00 --</div>
+      <div class="clock-date" id="liveDate">00-00-0000</div>
+      <div class="clock-label">Terminal Time System</div>
+    </div>
+  </div>
+
+  <main>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num ac">{{ running }}</div>
+        <div class="stat-label">RUNNING</div>
+      </div>
+      
+      <button id="muteBtn" class="mute-toggle-btn" onclick="toggleMute()" title="Toggle Mute">🔊</button>
+
+      <div class="stat-card">
+        <div class="stat-num total-sync">{{ total }}</div>
+        <div class="stat-label">TOTAL</div>
+      </div>
+    </div>
+
+    {% if servers %}
+      {% for name, cfg in servers.items() %}
+      <div class="server-card {{ cfg.status }}">
+        <div class="server-top">
+          <span class="server-name-sync">{{ name.upper() }}</span>
+          <span class="status-badge {{ cfg.status }}">{{ cfg.status.upper() }}</span>
+        </div>
+        <div class="server-sub-sync">{{ cfg.runtime }} {{ cfg.main_file or 'main.py' }}</div>
+        <div class="actions">
+          {% if cfg.status == 'running' %}
+          <form action="/server/{{ name }}/stop" method="POST" style="display:inline" onsubmit="handleAction(event, this)">
+            <button class="action-btn" style="border-color:#ef444488;color:#ef4444" title="Stop">■</button>
+          </form>
+          {% else %}
+          <form action="/server/{{ name }}/start" method="POST" style="display:inline" onsubmit="handleAction(event, this)">
+            <button class="action-btn" style="border-color:var(--ac-dim);color:var(--ac)" title="Start">▶</button>
+          </form>
+          {% endif %}
+          
+          <a href="/server/{{ name }}" class="action-btn btn-view-sync" title="View">👁</a>
+          <a href="/server/{{ name }}?tab=settings" class="action-btn btn-set-sync" title="Settings">⚙</a>
+          <form action="/server/delete/{{ name }}" method="POST" style="display:inline" onsubmit="return confirm('Delete {{ name }}?')">
+            <button class="action-btn btn-del-sync" title="Delete">🗑</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">
+        <div class="empty-icon">🗂️</div>
+        <div>NO PROJECTS YET...!! CLICK + TO CREATE ONE...!!</div>
+      </div>
+    {% endif %}
+  </main>
+
+  <button class="fab" onclick="document.getElementById('createModal').classList.add('show')">+</button>
+
+  <div id="createModal" class="modal-bg" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal">
+      <div class="modal-title">NEW PROJECT</div>
+      <form action="/server/create" method="POST">
+        <div class="form-group">
+          <label class="form-label">PROJECT NAME</label>
+          <input class="form-input" name="name" placeholder="my-bot" required autofocus>
+        </div>
+        <div class="form-group">
+          <label class="form-label">RUNTIME</label>
+          <select class="form-input" name="runtime">
+            <option value="python">Python</option>
+            <option value="node">Node.js</option>
+            <option value="static">Static</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="modal-btn">CREATE</button>
+          <button type="button" class="modal-btn modal-cancel" onclick="document.getElementById('createModal').classList.remove('show')">CANCEL</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+    // লোকাল স্টোরেজ থেকে আগের মিউট করা ডাটা লোড করার সিস্টেম করা হলো
+    let isMuted = localStorage.getItem('musicIsMuted') === 'true';
+    let savedVolume = parseInt(localStorage.getItem('musicSharedVolume')) || 20; // ডিফল্ট ভলিউম ফিক্সড ১০ করা হলো
+
+    function updateClock() {
+        const now = new Date();
+        let h = now.getHours();
+        let m = now.getMinutes();
+        let s = now.getSeconds();
+        let ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        h = h ? h : 12; 
+        m = m < 10 ? '0' + m : m;
+        s = s < 10 ? '0' + s : s;
+        document.getElementById('liveClock').textContent = h + ':' + m + ':' + s + ' ' + ampm;
+
+        let day = now.getDate();
+        let month = now.getMonth() + 1; 
+        let year = now.getFullYear();
+        day = day < 10 ? '0' + day : day;
+        month = month < 10 ? '0' + month : month;
+        document.getElementById('liveDate').textContent = day + '-' + month + '-' + year;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    async function handleAction(event, form) {
+        event.preventDefault(); 
+        try {
+            await fetch(form.action, { method: 'POST' });
+            location.reload(); 
+        } catch (e) {
+            location.reload(); 
+        }
+    }
+
+    // স্মার্ট টগল মিউট ফাংশন (মেমরি সেভ সহ)
+    async function toggleMute() {
+        const music = document.getElementById('bgMusic');
+        const btn = document.getElementById('muteBtn');
+        
+        if (!isMuted) {
+            if (music) music.volume = 0;
+            btn.innerText = "🔇";
+            btn.classList.add('is-muted');
+            isMuted = true;
+            localStorage.setItem('musicIsMuted', 'true'); // ব্রাউজার মেমরিতে সেভ রাখা হলো
+            await sendVolumeToServer(0);
+        } else {
+            if (music) music.volume = savedVolume / 100;
+            btn.innerText = "🔊";
+            btn.classList.remove('is-muted');
+            isMuted = false;
+            localStorage.setItem('musicIsMuted', 'false'); // ব্রাউজার মেমরিতে সেভ রাখা হলো
+            await sendVolumeToServer(savedVolume);
+        }
+    }
+
+    async function sendVolumeToServer(val) {
+        try {
+            await fetch('/admin/music/volume', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({volume: parseInt(val)})
+            });
+        } catch(e) {}
+    }
+
+    window.addEventListener('load', async () => {
+        const music = document.getElementById('bgMusic');
+        const btn = document.getElementById('muteBtn');
+        let playlist = [];
+        try {
+            const response = await fetch('/api/all_songs'); 
+            const songs = await response.json();
+            if (songs && songs.length > 0) {
+                playlist = songs.map(s => '/static/uploads/' + s.name);
+            }
+        } catch (e) {}
+
+        let currentIndex = parseInt(localStorage.getItem('musicCurrentIndex')) || 0;
+        const savedTime = localStorage.getItem('musicCurrentTime');
+        if (playlist.length > 0) {
+            music.src = playlist[currentIndex];
+            if (savedTime) music.currentTime = parseFloat(savedTime);
+        }
+
+        const playNextSong = () => {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex + 1) % playlist.length;
+            localStorage.setItem('musicCurrentIndex', currentIndex);
+            music.src = playlist[currentIndex];
+            music.load();
+            
+            // পেজ পরিবর্তনের পর গান প্লে করার সময় মিউট মেমরি চেক করা হচ্ছে
+            if (isMuted) {
+                music.volume = 0;
+            } else {
+                music.volume = savedVolume / 100;
+            }
+            music.play().catch(() => {});
+        };
+        music.onended = () => playNextSong();
+
+        // পেজ লোড হওয়ার সাথে সাথে বাটন এবং ভলিউমের বর্তমান অবস্থা সেট করা
+        if (music) {
+            if (isMuted) {
+                music.volume = 0;
+                if (btn) {
+                    btn.innerText = "🔇";
+                    btn.classList.add('is-muted');
+                }
+            } else {
+                music.volume = savedVolume / 100;
+                if (btn) {
+                    btn.innerText = "🔊";
+                    btn.classList.remove('is-muted');
+                }
+            }
+        }
+
+        const playMusic = () => {
+            if (isMuted) {
+                music.volume = 0;
+            } else {
+                music.volume = savedVolume / 100;
+            }
+            music.play().catch(() => {});
+            document.removeEventListener('click', playMusic);
+        };
+        document.addEventListener('click', playMusic);
+
+        setInterval(() => {
+            if (!music.paused) {
+                localStorage.setItem('musicCurrentTime', music.currentTime);
+                localStorage.setItem('musicCurrentIndex', currentIndex);
+            }
+        }, 1000);
+    });
+
+    async function fetchStats(){
+      try{
+        const r=await fetch('/api/stats');
+        const d=await r.json();
+        const cpuEl = document.getElementById('statCpu');
+        const ramEl = document.getElementById('statRam');
+        const diskEl = document.getElementById('statDisk');
+
+        cpuEl.textContent='CPU: '+d.cpu.toFixed(1)+'%';
+        ramEl.textContent='RAM: '+d.ram.toFixed(1)+'%';
+        diskEl.textContent='DISK: '+d.disk.toFixed(1)+'%';
+
+        cpuEl.style.color = d.cpu < 50 ? '#ef4444' : '#00ff41';
+        ramEl.style.color = d.ram < 50 ? '#ef4444' : '#00ff41';
+        diskEl.style.color = d.disk < 50 ? '#ef4444' : '#00ff41';
+      }catch(e){}
+    }
+    fetchStats();
+    setInterval(fetchStats,5000);
+
+    let autoInterval = null;
+    const themeColors = ["#a855f7", "#00ff41", "#38bdf8", "#ef4444", "#fbbf24", "#06b6d4", "#ec4899", "#84cc16"];
+    let colorIndex = 0;
+
+    async function checkAutoMode() {
+      const isAuto = localStorage.getItem("autoThemeState") === "on";
+      if (isAuto) {
+        if (!autoInterval) {
+          autoInterval = setInterval(() => {
+            const nextColor = themeColors[colorIndex];
+            document.documentElement.style.setProperty('--ac', nextColor);
+            document.documentElement.style.setProperty('--ac-dim', nextColor + '88');
+            const totalColor = themeColors[(colorIndex + 1) % themeColors.length];
+            document.documentElement.style.setProperty('--total-sync-color', totalColor);
+            document.documentElement.style.setProperty('--view-sync-color', themeColors[(colorIndex + 2) % themeColors.length]);
+            document.documentElement.style.setProperty('--set-sync-color', themeColors[(colorIndex + 3) % themeColors.length]);
+            document.documentElement.style.setProperty('--del-sync-color', themeColors[(colorIndex + 4) % themeColors.length]);
+            colorIndex = (colorIndex + 1) % themeColors.length;
+          }, 2000);
+        }
+      } else {
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+          document.documentElement.style.setProperty('--ac', '#00ff41');
+          document.documentElement.style.setProperty('--ac-dim', '#00ff4188');
+          document.documentElement.style.setProperty('--total-sync-color', '#e5e7eb');
+          document.documentElement.style.setProperty('--view-sync-color', '#38bdf8');
+          document.documentElement.style.setProperty('--set-sync-color', '#c084fc');
+          document.documentElement.style.setProperty('--del-sync-color', '#ef4444');
+        }
+      }
+    }
+    setInterval(checkAutoMode, 2000);
+</script>
+</body>
+</html>

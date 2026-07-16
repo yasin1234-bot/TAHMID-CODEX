@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Like Bot BD - TOM_CODEX API</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+
+body{
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+    background:#0d0d0d;
+    color:white;
+    text-align:center;
+    padding:20px;
+    margin:0;
+}
+
+/* Telegram Verification Popup Style */
+#verify-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #0d0d0d;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.channel-card {
+    background: #1a1a1a;
+    width: 100%;
+    max-width: 350px;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.channel-card a {
+    color: #ffa500;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.status-icon {
+    font-size: 20px;
+}
+
+.status-tick { color: #00ff00; }
+.status-cross { color: #ff4d4d; }
+
+#verify-btn {
+    margin-top: 20px;
+    max-width: 200px;
+}
+
+/* ================= HEADER ================= */
+
+.header-container{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    max-width:500px;
+    margin:0 auto 20px;
+    padding:0 10px;
+}
+
+.site-title{
+    color:#ffa500;
+    font-size:20px;
+    font-weight:bold;
+    text-shadow:0 0 10px rgba(255,165,0,0.5);
+    text-align:left;
+    text-transform:uppercase;
+}
+
+.login-btn{
+    background:#1a1a1a;
+    color:#ffa500;
+    padding:8px 15px;
+    border-radius:50px;
+    border:1px solid #333;
+    text-decoration:none;
+    font-weight:bold;
+    font-size:13px;
+    transition:0.3s;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    white-space:nowrap;
+}
+
+/* ================= POPUP ================= */
+
+#error-msg{
+    position:fixed;
+    bottom:30px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#ff4d4d;
+    color:white;
+    padding:12px 25px;
+    border-radius:10px;
+    font-weight:bold;
+    display:none;
+    z-index:9999;
+    box-shadow:0 -5px 15px rgba(255,77,77,0.4);
+    animation:slideUp 0.4s ease;
+    width:80%;
+    max-width:350px;
+}
+
+@keyframes slideUp{
+    from{
+        opacity:0;
+        bottom:0;
+    }
+    to{
+        opacity:1;
+        bottom:30px;
+    }
+}
+
+/* ================= TABS ================= */
+
+.nav-tabs{
+    display:flex;
+    background:#1a1a1a;
+    padding:5px;
+    border-radius:50px;
+    border:1px solid #333;
+    max-width:300px;
+    margin:0 auto 20px;
+}
+
+.tab-item{
+    flex:1;
+    padding:10px;
+    cursor:pointer;
+    border-radius:40px;
+    transition:0.3s;
+    font-weight:bold;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    color:#888;
+    font-size:14px;
+}
+
+.tab-item.active{
+    background:linear-gradient(45deg,#ff8c00,#ffa500);
+    color:black;
+}
+
+/* ================= MAIN CARD ================= */
+
+.main-card{
+    background:#1a1a1a;
+    padding:20px;
+    border-radius:20px;
+    max-width:450px;
+    margin:auto;
+    border:2px solid #ffa500;
+    box-shadow:0 0 20px rgba(255,165,0,0.15);
+    position:relative;
+    overflow:hidden;
+    text-align:left;
+}
+
+.tab-content{
+    display:none;
+}
+
+.tab-content.active{
+    display:block;
+    animation:slideIn 0.4s ease;
+}
+
+@keyframes slideIn{
+    from{
+        opacity:0;
+        transform:translateX(20px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+/* ================= FORM ================= */
+
+h2{
+    color:#ffa500;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    margin-top:0;
+    text-align:center;
+}
+
+.example-text{
+    color:#888;
+    font-size:13px;
+    margin-bottom:20px;
+    text-align:center;
+}
+
+input{
+    width:94%;
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:8px;
+    border:1px solid #444;
+    background:#252525;
+    color:white;
+    text-align:center;
+    font-size:16px;
+}
+
+button{
+    background:linear-gradient(45deg,#ff8c00,#ffa500);
+    color:black;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    margin-bottom:10px;
+}
+
+button:disabled{
+    opacity:0.6;
+}
+
+/* ================= LOADER ================= */
+
+#loader{
+    display:none;
+    margin-top:25px;
+    text-align:center;
+}
+
+.progress-container{
+    background:#333;
+    height:14px;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+#bar{
+    width:0%;
+    height:100%;
+    background:#ffa500;
+    transition:0.1s linear;
+}
+
+/* ================= RESULT BOX ================= */
+
+#result-box,
+#info-result-box{
+    display:none;
+    margin-top:20px;
+}
+
+.section-title{
+    color:#888;
+    font-size:12px;
+    text-transform:uppercase;
+    margin:15px 0 8px;
+    border-left:3px solid #ffa500;
+    padding-left:8px;
+    font-weight:bold;
+}
+
+.info{
+    display:flex;
+    justify-content:space-between;
+    padding:8px 0;
+    font-size:14px;
+    border-bottom:1px solid #2a2a2a;
+}
+
+.info span{
+    color:#ccc;
+}
+
+.info b{
+    color:#ffa500;
+    font-family:'Segoe UI',sans-serif;
+    text-align:right;
+}
+
+.signature-box{
+    font-size:14px;
+    color:#ffa500;
+    font-style:italic;
+    margin-top:10px;
+    text-align:center;
+    width:100%;
+    display:block;
+    border:1px dashed #444;
+    padding:15px;
+    background:rgba(255,165,0,0.05);
+    border-radius:8px;
+    white-space:pre-line;
+}
+
+.timer-display{
+    margin-top:15px;
+    color:#ff4d4d;
+    font-weight:bold;
+    text-align:center;
+    font-size:15px;
+    background:rgba(255,77,77,0.1);
+    padding:10px;
+    border-radius:5px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="verify-overlay">
+    <h2 style="color: #ffa500;">JOIN TELEGRAM CHANNEL</h2>
+    <p style="color: #888; font-size: 14px; margin-bottom: 20px;">Please join all channels to unlock the bot.</p>
+
+    <div class="channel-card">
+        <a href="https://t.me/free_like_bot1" target="_blank" onclick="markJoined(1)">Join Channel 1</a>
+        <span id="tick-1" class="status-icon status-cross">✖</span>
+    </div>
+
+    <div class="channel-card">
+        <a href="https://t.me/freefireob51" target="_blank" onclick="markJoined(2)">Join Channel 2</a>
+        <span id="tick-2" class="status-icon status-cross">✖</span>
+    </div>
+
+    <button id="verify-btn" onclick="finalVerify()">VERIFY NOW</button>
+</div>
+
+<div id="error-msg"></div>
+
+<div class="header-container">
+    <div class="site-title">Free Like Plus Info Website</div>
+
+    <a href="/login" class="login-btn">
+        <i class="fas fa-sign-in-alt"></i>
+        Login
+    </a>
+</div>
+
+<div class="nav-tabs">
+
+    <div class="tab-item active"
+         onclick="switchTab('like-tab',this)">
+        <i class="fas fa-thumbs-up"></i>
+        Like
+    </div>
+
+    <div class="tab-item"
+         onclick="switchTab('info-tab',this)">
+        <i class="fas fa-user"></i>
+        Info
+    </div>
+
+</div>
+
+<div class="main-card">
+
+    <div id="like-tab" class="tab-content active">
+
+        <h2>only bd server Like Bot </h2>
+
+        <p class="example-text">
+            /like bd 8089858703
+        </p>
+
+        <input type="text"
+               id="uidInput"
+               placeholder="/like bd 8089858703">
+
+        <button id="actionBtn"
+                onclick="startExecution()">
+            SEND LIKE
+        </button>
+
+    </div>
+
+    <div id="info-tab" class="tab-content">
+
+        <h2>all server Player Full Info</h2>
+
+        <p class="example-text">
+            View Player Details
+        </p>
+
+        <input type="text"
+               id="infoInput"
+               placeholder="Enter Player UID">
+
+        <button id="infoBtn"
+                onclick="checkInfo()">
+            GET FULL INFO
+        </button>
+
+    </div>
+
+    <div id="loader">
+
+        <p>
+            Processing wait:
+            <span id="percent">0</span>%
+        </p>
+
+        <div class="progress-container">
+            <div id="bar"></div>
+        </div>
+
+    </div>
+
+    <div id="result-box">
+
+        <div class="section-title">
+            Status
+        </div>
+
+        <div class="info">
+            <span>Account Name:</span>
+            <b id="outName">-</b>
+        </div>
+
+        <div class="info">
+            <span>Player UID:</span>
+            <b id="outUid">-</b>
+        </div>
+
+        <div class="info">
+            <span>Region:</span>
+            <b id="outRegion">-</b>
+        </div>
+
+        <div class="info">
+            <span>Old Likes:</span>
+            <b id="outOld">-</b>
+        </div>
+
+        <div class="info">
+            <span>Likes Added:</span>
+            <b id="outAdded" style="color:#00ff00;">-</b>
+        </div>
+
+        <div class="info">
+            <span>Total Likes:</span>
+            <b id="outTotal">-</b>
+        </div>
+
+        <div class="info">
+            <span>Status:</span>
+
+            <span id="statusText"
+                  style="color:#00ff00;font-weight:bold;">
+                Success ✅
+            </span>
+        </div>
+
+        <div id="clock"
+             class="timer-display">
+        </div>
+
+    </div>
+
+    <div id="info-result-box">
+
+        <div class="section-title">
+            1. BASIC INFORMATION
+        </div>
+
+        <div class="info">
+            <span>Nickname:</span>
+            <b id="infoName">-</b>
+        </div>
+
+        <div class="info">
+            <span>Account ID:</span>
+            <b id="infoUid">-</b>
+        </div>
+
+        <div class="info">
+            <span>Level:</span>
+            <b id="infoLevel">-</b>
+        </div>
+
+        <div class="info">
+            <span>Total EXP:</span>
+            <b id="infoExp">-</b>
+        </div>
+
+        <div class="info">
+            <span>Region:</span>
+            <b id="infoRegion">-</b>
+        </div>
+
+        <div class="info">
+            <span>Likes Count:</span>
+            <b id="infoLikes">-</b>
+        </div>
+
+        <div class="info">
+            <span>Account Created:</span>
+            <b id="infoCreate">-</b>
+        </div>
+
+        <div class="section-title">
+            2. RANK & STATS (SEASON 51)
+        </div>
+
+        <div class="info">
+            <span>BR Rank Points:</span>
+            <b id="infoBr">-</b>
+        </div>
+
+        <div class="info">
+            <span>CS Rank Points:</span>
+            <b id="infoCs">-</b>
+        </div>
+
+        <div class="info">
+            <span>Max BR Rank:</span>
+            <b id="infoBrMax">-</b>
+        </div>
+
+        <div class="info">
+            <span>Max CS Rank:</span>
+            <b id="infoCsMax">-</b>
+        </div>
+
+        <div class="section-title">
+            3. CLAN DETAILS
+        </div>
+
+        <div class="info">
+            <span>Clan Name:</span>
+            <b id="infoClan">-</b>
+        </div>
+
+        <div class="info">
+            <span>Clan ID:</span>
+            <b id="infoClanId">-</b>
+        </div>
+
+        <div class="info">
+            <span>Clan Level:</span>
+            <b id="infoClanLv">-</b>
+        </div>
+
+        <div class="info">
+            <span>Member Count:</span>
+            <b id="infoClanCap">-</b>
+        </div>
+
+        <div class="info">
+            <span>Clan Leader:</span>
+            <b id="infoClanLeader">-</b>
+        </div>
+
+        <div class="section-title">
+            4. SOCIAL & STATS
+        </div>
+
+        <div class="info">
+            <span>Language:</span>
+            <b id="infoLang">-</b>
+        </div>
+
+        <div class="info">
+            <span>Credit Score:</span>
+            <b id="infoCredit">-</b>
+        </div>
+
+        <div class="info">
+            <span>Pet Equipped:</span>
+            <b id="infoPet">-</b>
+        </div>
+
+        <div class="info">
+            <span>Diamonds Spent:</span>
+            <b id="infoDiamond">-</b>
+        </div>
+
+        <div class="section-title">
+            5. HIGHLIGHTS
+        </div>
+
+        <div class="info">
+            <span>Release Version:</span>
+            <b id="infoVer">-</b>
+        </div>
+
+        <div class="info">
+            <span>Title ID:</span>
+            <b id="infoTitle">-</b>
+        </div>
+
+        <div class="info">
+            <span>Badge Count:</span>
+            <b id="infoBadge">-</b>
+        </div>
+
+        <div class="info">
+            <span>Last Login:</span>
+            <b id="infoLogin">-</b>
+        </div>
+
+        <div class="section-title">
+            SIGNATURE
+        </div>
+
+        <div class="signature-box"
+             id="infoSig">
+            -
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* ================= POPUP ================= */
+
+function showError(msg,duration=5000){
+
+    const errorBox=document.getElementById('error-msg');
+
+    errorBox.innerText=msg;
+    errorBox.style.display='block';
+
+    setTimeout(()=>{
+        errorBox.style.display='none';
+    },duration);
+}
+
+/* ================= TAB SWITCH ================= */
+
+function switchTab(tabId,element){
+
+    document.querySelectorAll('.tab-content')
+    .forEach(tab=>tab.classList.remove('active'));
+
+    document.querySelectorAll('.tab-item')
+    .forEach(item=>item.classList.remove('active'));
+
+    document.getElementById(tabId)
+    .classList.add('active');
+
+    element.classList.add('active');
+
+    document.getElementById('result-box')
+    .style.display='none';
+
+    document.getElementById('info-result-box')
+    .style.display='none';
+
+    document.getElementById('loader')
+    .style.display='none';
+}
+
+/* ================= FORMAT TIME ================= */
+
+function formatTime(timestamp){
+
+    if(!timestamp || timestamp=="0")
+        return "Unknown";
+
+    const date=new Date(timestamp*1000);
+
+    return date.toLocaleString('en-GB',{
+        day:'2-digit',
+        month:'2-digit',
+        year:'numeric',
+        hour:'2-digit',
+        minute:'2-digit'
+    });
+}
+
+/* ================= 4:00 AM RESET LOGIC ================= */
+
+function getNextResetTime() {
+    const now = new Date();
+    const reset = new Date();
+    reset.setHours(4, 0, 0, 0); // ভোর ৪টা সেট করা হলো
+
+    // যদি এখন ভোর ৪টার বেশি বাজে, তাহলে পরবর্তী রিসেট কালকে ভোর ৪টায়
+    if (now.getTime() >= reset.getTime()) {
+        reset.setDate(reset.getDate() + 1);
+    }
+    return reset.getTime();
+}
+
+/* ================= START LIKE ================= */
+
+function startExecution(){
+
+    const inputVal=document.getElementById('uidInput').value.trim();
+    const parts=inputVal.split(' ');
+    const uid=parts[parts.length-1];
+
+    if(!inputVal.toLowerCase().includes("/like bd") || uid.length < 5){
+        showError("INVALID UID FORMAT",4000);
+        return;
+    }
+
+    const savedData=localStorage.getItem('data_'+uid);
+    const lastSuccess=localStorage.getItem('last_success_'+uid);
+    const now = new Date().getTime();
+
+    // চেক করা হচ্ছে ভোর ৪টার রিসেট টাইম পার হয়েছে কিনা
+    if(lastSuccess){
+        const lastDate = new Date(parseInt(lastSuccess));
+        const resetPoint = new Date(lastDate);
+        resetPoint.setHours(4, 0, 0, 0);
+        
+        // যদি লাইক ভোর ৪টার আগে নেওয়া হয়ে থাকে এবং এখন ৪টা বেজে গেছে
+        if(lastDate.getTime() < resetPoint.getTime() && now >= resetPoint.getTime()){
+            localStorage.removeItem('last_success_'+uid);
+        } 
+        // যদি লাইক ৪টার পরে নেওয়া হয় কিন্তু দিন পরিবর্তন হয়নি (একই ৪টার সার্কেল)
+        else if (now < getNextResetTime() && now - lastSuccess < 86400000 && lastSuccess > (getNextResetTime() - 86400000)) {
+            if(savedData){
+                const data=JSON.parse(savedData);
+                displayData(data,uid,true);
+                showError("Already like niyescho today, try again! 4:00 AM ⏰", 5000);
+                return;
+            }
+        }
+    }
+
+    runLoader(()=>{
+        sendToFlask(uid);
+    });
+}
+
+/* ================= LOADER ================= */
+
+function runLoader(callback){
+
+    document.getElementById('actionBtn').disabled=true;
+    document.getElementById('infoBtn').disabled=true;
+    document.getElementById('loader').style.display='block';
+    document.getElementById('result-box').style.display='none';
+    document.getElementById('info-result-box').style.display='none';
+
+    let width=0;
+    const progress=setInterval(()=>{
+        width+=2;
+        document.getElementById('bar').style.width=width+'%';
+        document.getElementById('percent').innerText=width;
+        if(width>=100){
+            clearInterval(progress);
+            callback();
+        }
+    },20);
+}
+
+/* ================= STOP LOADER ================= */
+
+function stopLoader(){
+    document.getElementById('loader').style.display='none';
+    document.getElementById('actionBtn').disabled=false;
+    document.getElementById('infoBtn').disabled=false;
+    document.getElementById('bar').style.width='0%';
+}
+
+/* ================= SEND LIKE ================= */
+
+async function sendToFlask(uid){
+
+    let bodyData=new FormData();
+    bodyData.append('uid',uid);
+    bodyData.append('server','bd');
+
+    try{
+        const response=await fetch('/send_like',{
+            method:'POST',
+            body:bodyData
+        });
+
+        const data=await response.json();
+
+        if(data.status==='success'){
+            localStorage.setItem('last_success_'+uid, new Date().getTime());
+            localStorage.setItem('data_'+uid, JSON.stringify(data));
+            displayData(data,uid,false);
+            showError("Request Sent Successfully!", 3000);
+        }else{
+            stopLoader();
+            let apiMsg= data.message || "BOLD! UID NOT FOUND BD";
+            showError(apiMsg.toUpperCase(),4000);
+        }
+    }catch(e){
+        stopLoader();
+        showError("API CONNECTION ERROR", 4000);
+    }
+}
+
+/* ================= DISPLAY LIKE DATA ================= */
+
+function displayData(data,uid,isLimitReached){
+
+    stopLoader();
+    document.getElementById('result-box').style.display='block';
+    document.getElementById('outName').innerText= data.accName || "-";
+    document.getElementById('outUid').innerText= uid;
+    document.getElementById('outRegion').innerText= data.region || "-";
+    document.getElementById('outOld').innerText= data.oldLikes || "0";
+    document.getElementById('outTotal').innerText= data.totalLikes || "0";
+
+    if(isLimitReached){
+        document.getElementById('outAdded').innerText="0";
+        document.getElementById('outAdded').style.color="#ff4d4d";
+        document.getElementById('statusText').innerText="4:00 AM ⏰";
+        document.getElementById('statusText').style.color="#ff4d4d";
+    }else{
+        document.getElementById('outAdded').innerText="+"+(data.added || "0");
+        document.getElementById('outAdded').style.color="#00ff00";
+        document.getElementById('statusText').innerText="Success ✅";
+        document.getElementById('statusText').style.color="#00ff00";
+    }
+
+    showTimer(uid);
+}
+
+/* ================= TIMER ================= */
+
+function showTimer(uid){
+    const clockDisplay=document.getElementById('clock');
+
+    function updateClock(){
+        const start = localStorage.getItem('last_success_'+uid);
+        if(!start) return;
+
+        const nextReset = getNextResetTime();
+        const diff = nextReset - new Date().getTime();
+
+        if(diff <= 0){
+            clockDisplay.innerText = "আপনি এখন আবার লাইক নিতে পারবেন!";
+            return;
+        }
+
+        const h = Math.floor(diff / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        clockDisplay.innerText = `Next Available In: ${h}h ${m}m ${s}s`;
+        setTimeout(updateClock,1000);
+    }
+    updateClock();
+}
+
+/* ================= PLAYER INFO ================= */
+
+async function checkInfo(){
+
+    const uid= document.getElementById('infoInput').value.trim();
+
+    if(uid.length < 5){
+        showError("ENTER VALID UID", 4000);
+        return;
+    }
+
+    runLoader(async()=>{
+        try{
+            const response=await fetch(`https://mafuuuu-info-api.vercel.app/mafu-info?uid=${uid}`);
+            const data=await response.json();
+
+            if(data.basicInfo){
+                stopLoader();
+                document.getElementById('info-result-box').style.display='block';
+
+                /* BASIC */
+                document.getElementById('infoName').innerText=data.basicInfo.nickname;
+                document.getElementById('infoUid').innerText=data.basicInfo.accountId;
+                document.getElementById('infoLevel').innerText=data.basicInfo.level;
+                document.getElementById('infoExp').innerText=data.basicInfo.exp.toLocaleString();
+                document.getElementById('infoRegion').innerText=data.basicInfo.region;
+                document.getElementById('infoLikes').innerText=data.basicInfo.liked.toLocaleString();
+                document.getElementById('infoCreate').innerText=formatTime(data.basicInfo.createAt);
+
+                /* RANK */
+                document.getElementById('infoBr').innerText=data.basicInfo.rankingPoints;
+                document.getElementById('infoCs').innerText=data.basicInfo.csRankingPoints;
+                document.getElementById('infoBrMax').innerText=data.basicInfo.maxRank;
+                document.getElementById('infoCsMax').innerText=data.basicInfo.csMaxRank;
+
+                /* CLAN */
+                document.getElementById('infoClan').innerText= data.clanBasicInfo ? data.clanBasicInfo.clanName : "No Clan";
+                document.getElementById('infoClanId').innerText= data.clanBasicInfo ? data.clanBasicInfo.clanId : "-";
+                document.getElementById('infoClanLv').innerText= data.clanBasicInfo ? data.clanBasicInfo.clanLevel : "-";
+                document.getElementById('infoClanCap').innerText= data.clanBasicInfo ? `${data.clanBasicInfo.memberNum} / ${data.clanBasicInfo.capacity}` : "0/0";
+                document.getElementById('infoClanLeader').innerText= data.captainBasicInfo ? `${data.captainBasicInfo.nickname} (Lv ${data.captainBasicInfo.level})` : "-";
+
+                /* SOCIAL */
+                const languageNames = {"1": "English", "2": "Arabic", "3": "French", "4": "Portuguese", "5": "Spanish", "6": "Russian", "10": "Vietnamese", "11": "Thai", "12": "Indonesian", "13": "Bengali"};
+                let rawLang = data.socialInfo ? data.socialInfo.language : "1";
+                let langCode = rawLang.toString().replace("Language_", "");
+                document.getElementById('infoLang').innerText = languageNames[langCode] || "English";
+
+                document.getElementById('infoCredit').innerText= data.creditScoreInfo ? data.creditScoreInfo.creditScore : "100";
+                document.getElementById('infoPet').innerText= data.petInfo ? `ID: ${data.petInfo.id} (Lv ${data.petInfo.level})` : "None";
+                document.getElementById('infoDiamond').innerText= data.diamondCostRes ? data.diamondCostRes.diamondCost : "0";
+
+                /* HIGHLIGHT */
+                document.getElementById('infoVer').innerText=data.basicInfo.releaseVersion;
+                document.getElementById('infoTitle').innerText=data.basicInfo.title || "-";
+                document.getElementById('infoBadge').innerText=data.basicInfo.badgeCnt;
+                document.getElementById('infoLogin').innerText=formatTime(data.basicInfo.lastLoginAt);
+
+                /* SIGNATURE */
+                document.getElementById('infoSig').innerText= data.socialInfo ? data.socialInfo.signature : "No Signature";
+
+            }else{
+                stopLoader();
+                showError("PLAYER NOT FOUND", 4000);
+            }
+        }catch(e){
+            stopLoader();
+            showError("API CONNECTION ERROR", 4000);
+        }
+    });
+}
+/* Verification Logic */
+let joinedChannels = {
+    1: false,
+    2: false
+};
+
+function markJoined(id) {
+    joinedChannels[id] = true;
+    const tick = document.getElementById('tick-' + id);
+    tick.innerText = "✔";
+    tick.classList.remove('status-cross');
+    tick.classList.add('status-tick');
+}
+
+async function finalVerify() {
+    // এখানে ইউজারকে তার টেলিগ্রাম আইডি ইনপুট দেওয়ার জন্য একটি প্রোম্পট দেখাবে
+    let userId = prompt("Please enter your Telegram User ID to verify:");
+
+    if (!userId) {
+        showError("User ID is required for verification!", 4000);
+        return;
+    }
+
+    // বাটনে লোডিং অবস্থা দেখানোর জন্য
+    const verifyBtn = document.getElementById('verify-btn');
+    verifyBtn.innerText = "Checking...";
+    verifyBtn.disabled = true;
+
+    try {
+        const response = await fetch('/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            document.getElementById('verify-overlay').style.display = 'none';
+            showError("Verification Success! Welcome.", 3000);
+        } else {
+            showError(result.message, 5000); // যেমন: "Please join Channel 1"
+        }
+    } catch (e) {
+        showError("Server Connection Error!", 4000);
+    } finally {
+        verifyBtn.innerText = "VERIFY NOW";
+        verifyBtn.disabled = false;
+    }
+}
+
+</script>
+
+</body>
+</html>

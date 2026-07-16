@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAHMID CODEX— Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ac:{{ theme_color }};
+      --ac-dim:{{ theme_color }}88;
+      --ac-lite:{{ theme_color }}11;
+      --prompt-color: {{ theme_color }}; 
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#05000f;font-family:'JetBrains Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    
+    canvas{
+      position:fixed;
+      inset:0;
+      z-index: 1; 
+    }
+    
+    .container{position:relative;z-index:10;width:100%;max-width:380px;padding:0 16px}
+    
+    .card{
+      position: relative;
+      background:rgba(10, 0, 16, 0.85); 
+      border:2px solid var(--ac);
+      border-radius:12px;
+      padding:36px 32px;
+      box-shadow:0 0 40px var(--ac-lite); 
+      transition: all 0.8s ease; 
+      backdrop-filter: blur(2px);
+    }
+
+    .visit-badge {
+      position: absolute;
+      top: -25px; 
+      left: 50%;
+      transform: translateX(-50%);
+      background: #05000f; 
+      padding: 0 15px;
+      color: var(--ac);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      text-shadow: 0 0 8px var(--ac);
+      border: 1px solid var(--ac);
+      border-radius: 20px;
+      z-index: 11;
+    }
+    
+    .brand-logo-wrap {
+      text-align:center;
+      margin-bottom:15px;
+      display: flex;
+      justify-content: center;
+    }
+    .brand-logo {
+      width: 100px; 
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid var(--ac); 
+      filter: drop-shadow(0 0 15px var(--ac)); 
+      padding: 2px;
+      background: #000;
+      transition: all 0.8s ease;
+    }
+
+    .brand{text-align:center;font-size:22px;font-weight:700;color:var(--ac);letter-spacing:3px;text-shadow:0 0 12px var(--ac); transition: all 0.8s ease;}
+    .sub{text-align:center;font-size:11px;color:var(--ac-dim);letter-spacing:2px;margin-top:4px;margin-bottom:24px; transition: all 0.8s ease;}
+    
+    .prompt{font-size:13px;color:var(--prompt-color);margin-bottom:16px; transition: all 0.8s ease; font-weight: bold;}
+    
+    .cursor{display:inline-block;width:10px;height:15px;background:var(--prompt-color);margin-left:4px;vertical-align:middle;animation:blink 1s step-end infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+    
+    .error-box{background:#2a0808;border:1px solid #ef4444;border-radius:8px;padding:10px 14px;font-size:12px;color:#f87171;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+    input{
+      width:100%;
+      padding:11px 14px;
+      background:rgba(13, 0, 13, 0.7); 
+      border: 2.5px solid var(--ac); 
+      border-radius:8px;
+      color: var(--ac); 
+      font-family:'JetBrains Mono',monospace;
+      font-size:15px; 
+      font-weight: 700;
+      outline:none;
+      margin-bottom:12px;
+      box-shadow:inset 0 0 10px var(--ac-lite);
+      transition:all 0.5s ease;
+    }
+    input:focus{
+      border-color: #ffffff; 
+      background:rgba(13, 0, 13, 0.9);
+      box-shadow: 0 0 15px var(--ac-dim);
+    }
+    input::placeholder{
+      color: var(--ac); 
+      opacity: 0.7;
+    }
+
+    .pw-wrap{position:relative;margin-bottom:20px}
+    .pw-wrap input{margin-bottom:0;padding-right:44px}
+    .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ac);font-size:18px;padding:0;}
+    
+    /* লক্ষ্য করুন: .remember-wrap স্টাইলটি এখান থেকে বাদ দেওয়া হয়েছে */
+
+    .auth-btn{width:100%;padding:13px;background:transparent;border:2px solid var(--ac);border-radius:8px;color:var(--ac);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;letter-spacing:2px;cursor:pointer;box-shadow:0 0 12px var(--ac-lite);transition:all 0.8s ease;}
+    .auth-btn:hover{background:var(--ac-lite);box-shadow:0 0 24px var(--ac-dim)}
+    
+    .footer{text-align:center;margin-top:24px;font-size:10px;color:var(--ac-dim);letter-spacing:1px;line-height:1.8;opacity:.8}
+    .admin-link{display:block;text-align:center;margin-top:12px;font-size:11px;color:#fbbf2466;text-decoration:none;transition:color .2s;}
+    .admin-link:hover{color:#fbbf24}
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+  <div class="container">
+    <div class="card">
+      <div class="visit-badge">WEBSITE VISIT: {{ visit }}</div>
+
+      <div class="brand-logo-wrap">
+        <img src="{{ logo_url }}" alt="Logo" class="brand-logo">
+      </div>
+      <div class="brand">TAHMID CODEX</div>
+      <div class="sub"> $ SECURE TERMINAL V5.5</div>
+      <div class="prompt">&gt; LOGIN_REQUIRED TAHMID CODEX 💘<span class="cursor"></span></div>
+{% if error %}<div class="error-box">▲ {{ error }}</div>{% endif %}
+      
+      <audio id="loginSound" src="https://files.catbox.moe/0n33xi.mp3" preload="auto"></audio>
+
+      <form method="POST" id="loginForm">
+        <input type="text" name="username" id="username" placeholder="Username" required autocomplete="username">
+        <div class="pw-wrap">
+          <input type="password" name="password" placeholder="Password" id="pw" autocomplete="current-password">
+          <button type="button" class="eye-btn" onclick="togglePw()">👁</button>
+        </div>
+        
+        <button type="submit" class="auth-btn" onclick="playAndSubmit(event)">&gt;_< LOGIN NOW</button>
+      </form>
+      {% if session.get('admin') == True %}
+        <a href="/admin/login" class="admin-link">⚙ ADMIN PANEL</a>
+      {% endif %}
+      <a href="/like.html" class="admin-link">👍 LIKE BOT</a>
+
+<script>
+  if ("{{ session.get('admin') }}" === "True" || localStorage.getItem('is_admin') === 'true') {
+    document.getElementById('admin-secret-link').style.display = 'block';
+  }
+</script>
+      <div class="footer">⚠ UNAUTHORIZED POWER ACCESS PROHIBITED<br>TAHMID CODEX SECURE SYSTEMS ⚠</div>
+    </div>
+  </div>
+
+  <script>
+    /* পেজ লোড হওয়ার পর পূর্বে সেভ করা ডেটা খোঁজার লজিক রিমুভ করা হয়েছে */
+
+    function playAndSubmit(event) {
+      event.preventDefault();
+      const sound = document.getElementById('loginSound');
+      const form = document.getElementById('loginForm');
+      
+      /* localStorage-এ ইউজারনেম ও পাসওয়ার্ড সেভ বা রিমুভ করার কোড এখান থেকে ডিলিট করা হয়েছে */
+
+      sound.play(); 
+      setTimeout(() => {
+        form.submit();
+      }, 500); 
+    }
+
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()アイウエオカキクケコサシスセソ";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for (let x = 0; x < columns; x++) { drops[x] = 1; }
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(5, 0, 15, 0.15)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--ac').trim();
+      ctx.fillStyle = themeColor; 
+      ctx.font = fontSize + "px 'JetBrains Mono'";
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars.charAt(Math.floor(Math.random() * chars.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) { drops[i] = 0; }
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 50);
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    function togglePw(){const p=document.getElementById('pw');p.type=p.type==='password'?'text':'password';}
+
+    let autoInterval = null;
+    const themeColors = ["#a855f7", "#00ff41", "#38bdf8", "#ef4444", "#fbbf24", "#06b6d4", "#ec4899", "#84cc16"];
+    let colorIndex = 0;
+
+    async function checkAutoMode() {
+      const isAuto = localStorage.getItem("autoThemeState") === "on";
+      if (isAuto) {
+        if (!autoInterval) {
+          autoInterval = setInterval(() => {
+            const nextColor = themeColors[colorIndex];
+            document.documentElement.style.setProperty('--ac', nextColor);
+            document.documentElement.style.setProperty('--ac-dim', nextColor + '88');
+            document.documentElement.style.setProperty('--ac-lite', nextColor + '11');
+            const promptNextColor = themeColors[(colorIndex + 1) % themeColors.length];
+            document.documentElement.style.setProperty('--prompt-color', promptNextColor);
+            colorIndex = (colorIndex + 1) % themeColors.length;
+          }, 2000);
+        }
+      } else {
+        if (autoInterval) {
+          clearInterval(autoInterval);
+          autoInterval = null;
+          document.documentElement.style.setProperty('--ac', '{{ theme_color }}');
+          document.documentElement.style.setProperty('--ac-dim', '{{ theme_color }}88');
+          document.documentElement.style.setProperty('--ac-lite', '{{ theme_color }}11');
+          document.documentElement.style.setProperty('--prompt-color', '{{ theme_color }}');
+        }
+      }
+    }
+    setInterval(checkAutoMode, 2000);
+    window.addEventListener('load', checkAutoMode);
+ </script>
+</body>
+</html>
