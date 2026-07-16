@@ -1,0 +1,76 @@
+{
+  "servers": {
+    "Ff": {
+      "name": "Ff",
+      "owner": "ff",
+      "runtime": "python",
+      "status": "stopped",
+      "main_file": "",
+      "port": 8080,
+      "packages": [],
+      "pid": null,
+      "created": "2026-06-13T17:39:34.975647",
+      "auto_reset": {
+        "enabled": false,
+        "years": 0,
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    },
+    "MD-YASIN": {
+      "name": "MD-YASIN",
+      "owner": "mdy344@gmail.com",
+      "runtime": "python",
+      "status": "stopped",
+      "main_file": "",
+      "port": 8080,
+      "packages": [
+        {
+          "name": "jwt",
+          "version": "",
+          "installed_at": "2026-07-12T14:07:07.148825"
+        },
+        {
+          "name": "py",
+          "version": "",
+          "installed_at": "2026-07-12T14:08:19.110401"
+        },
+        {
+          "name": "pytz",
+          "version": "",
+          "installed_at": "2026-07-12T14:09:51.490770"
+        }
+      ],
+      "pid": null,
+      "created": "2026-07-12T14:04:40.140362",
+      "auto_reset": {
+        "enabled": false,
+        "years": 0,
+        "days": 0,
+        "hours": 0,
+        "minutes": 0,
+        "seconds": 0
+      }
+    }
+  },
+  "users": {
+    "ff": {
+      "joined": "2026-06-13T17:39:22.932286",
+      "password_hash": "42543d007f2972a9f1d0ba4f67d9aaa5c645b00df45752d28f1ec4644443e769",
+      "raw_password": "YASIN@@@1"
+    },
+    "mdy344@gmail.com": {
+      "joined": "2026-07-12T14:04:29.783448",
+      "password_hash": "e2dbf8f5c4cc151480213d21f95c72aa73a001bce4915b17691ae40952dcd793",
+      "raw_password": "ffffff"
+    }
+  },
+  "settings": {
+    "maintenance": false,
+    "maintenance_msg": "System under maintenance.",
+    "theme_color": "#fbbf24",
+    "logo_url": "https://i.postimg.cc/WzJkJpRd/IMG-20260413-154605-743.jpg"
+  }
+}
